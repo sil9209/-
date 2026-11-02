@@ -4,7 +4,7 @@ const cards=[
 const landmarks=[['항구','⚓',9],['쇼핑몰','🛍️',10],['공항','✈️',12],['테마파크','🎡',14],['랜드마크 타워','🏙️',16],['도시 공원','🌳',8]].map((a,i)=>({id:i,name:a[0],icon:a[1],cost:a[2]}));
 const rooms=new Map();const uid=()=>crypto.randomBytes(4).toString('hex').toUpperCase();
 function send(ws,msg){if(ws.readyState===1)ws.send(JSON.stringify(msg))}
-function pub(r){return {code:r.code,host:r.host,started:r.started,phase:r.phase,turn:r.turn,round:r.round,dice:r.dice,logs:r.logs.slice(-16),winner:r.winner,players:r.players.map(p=>({id:p.id,name:p.name,coins:p.coins,cards:p.cards,landmarks:p.landmarks,connected:!!p.ws&&p.ws.readyState===1})),market:r.market}}
+function pub(r){return {code:r.code,host:r.host,started:r.started,phase:r.phase,turn:r.turn,round:r.round,dice:r.dice,logs:(r.logs||[]).slice(-16),winner:r.winner,players:r.players.map(p=>({id:p.id,name:p.name,coins:p.coins,cards:p.cards,landmarks:p.landmarks,connected:!!p.ws&&p.ws.readyState===1})),market:r.market}}
 function broadcast(r){let m=JSON.stringify({type:'state',state:pub(r)});r.players.forEach(p=>p.ws?.readyState===1&&p.ws.send(m))}
 function log(r,s){r.logs.push(s);if(r.logs.length>90)r.logs.shift()}
 function next(r){r.turn=(r.turn+1)%r.players.length;if(r.phase==='setup'){if(r.turn===0)r.round++;if(r.round>3){r.phase='roll';r.turn=0;log(r,'사전 건설 종료! 본게임 시작')}}else r.phase='roll';r.dice=[]}
